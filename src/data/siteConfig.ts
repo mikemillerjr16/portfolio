@@ -1,0 +1,48 @@
+/**
+ * Central place for personal details, links, and navigation.
+ * Update these values to change identity/contact info across the whole site.
+ * (See README "Update personal information" and "Update social links".)
+ */
+
+export const siteConfig = {
+  name: "Michael Miller Jr.",
+  shortName: "Michael Miller",
+  initials: "MM",
+  // Headline + value proposition used on the home hero and in metadata.
+  role: "Senior AI Solutions Architect & Engineer",
+  tagline:
+    "I design enterprise AI that holds up in production: RAG and agentic systems with the guardrails, evaluation, and human-in-the-loop controls that make them safe to ship.",
+  summary:
+    "Senior AI solutions architect and engineer with 10+ years across AI/ML and cloud data platforms. I build RAG and multi-agent systems on AWS, and I care as much about trust, governance, and evaluation as I do about the model.",
+
+  // Privacy-conscious: general location only, no phone number or home address.
+  location: "Cincinnati, Ohio area",
+
+  email: "mike.millerjr16@gmail.com",
+
+  // Canonical site URL (falls back to localhost during development).
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://mikemiller.ai",
+
+  // Documented single-file replacement points (see README).
+  resumePath: "/resume/michael-miller-resume.pdf",
+  headshotPath: "/images/michael-miller-headshot.jpg",
+  ogImagePath: "/images/og-image.png",
+
+  socials: {
+    linkedin: "https://www.linkedin.com/in/mikemillerjr16",
+    github: "https://github.com/mikemillerjr16",
+  },
+} as const;
+
+export type NavItem = { label: string; href: string };
+
+export const primaryNav: NavItem[] = [
+  { label: "Home", href: "/" },
+  { label: "About", href: "/about" },
+  { label: "Experience", href: "/experience" },
+  { label: "Projects", href: "/projects" },
+  { label: "Architecture", href: "/architecture" },
+  { label: "How I Think", href: "/how-i-think" },
+  { label: "Insights", href: "/insights" },
+  { label: "Contact", href: "/contact" },
+];

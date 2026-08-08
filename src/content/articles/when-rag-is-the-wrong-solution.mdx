@@ -1,0 +1,88 @@
+---
+title: "When RAG Is the Wrong Solution"
+slug: "when-rag-is-the-wrong-solution"
+subtitle: "Retrieval-augmented generation has become the default answer to every enterprise AI question. It shouldn't be. Here's how to tell when it's the wrong tool."
+date: "2026-06-18"
+readingTime: "7 min read"
+featured: true
+tags:
+  - RAG
+  - Generative AI
+  - Architecture
+relatedProjects:
+  - resolveiq
+  - cost-optimized-enterprise-rag
+---
+
+RAG — retrieval-augmented generation — is a genuinely good pattern. It grounds a
+language model in your own data, keeps knowledge current without retraining, and
+gives you citations you can check. It deserves its popularity.
+
+But popularity has turned it into a reflex. &ldquo;We need an AI assistant&rdquo;
+now maps almost automatically to &ldquo;so we need RAG,&rdquo; and that reflex
+quietly ships complexity into places that didn&apos;t need it. Here are the
+situations where I push back.
+
+## When the question is really about structured data
+
+A surprising share of &ldquo;chatbot&rdquo; requests are actually analytics
+questions in disguise: *How many accounts renewed last quarter? What&apos;s our
+average handle time by region?* Those answers live in tables, and they have
+exact, correct values.
+
+RAG is the wrong tool here. Embedding rows and retrieving &ldquo;relevant&rdquo;
+ones will give you an approximate, unauditable answer to a question that has a
+precise one. The right pattern is **text-to-SQL over a semantic layer** — let the
+model translate the question into a query against defined metrics, and return the
+exact number. It&apos;s cheaper, it&apos;s correct, and it&apos;s explainable.
+
+> If the answer is a number that has to be right, you want a query, not a
+> retrieval.
+
+## When the corpus is tiny and static
+
+RAG earns its complexity when knowledge is **large, changing, and
+permissioned**. If your entire knowledge base is a dozen pages of policy that
+change twice a year, standing up an ingestion pipeline, a vector index, and a
+retrieval layer is a lot of moving parts to maintain.
+
+Often you can just put the relevant content directly in the prompt. It&apos;s
+simpler, there&apos;s nothing to keep in sync, and for a small enough corpus the
+quality is as good or better. Add the index when the corpus outgrows the context
+window — not before.
+
+## When the knowledge should be in the model's behavior
+
+RAG injects *facts*. It does not teach the model a *skill* or a *style*. If what
+you actually need is for the model to consistently follow a format, adopt a tone,
+or perform a specialized task, retrieval won&apos;t get you there — you&apos;re
+looking at prompt engineering or fine-tuning, not a vector store.
+
+A good diagnostic question: *am I trying to give the model new information, or new
+behavior?* RAG only helps with the former.
+
+## When you haven't defined what a good answer is
+
+This one isn&apos;t about the data — it&apos;s about readiness. If nobody has
+agreed on what a correct answer looks like or how you&apos;ll measure it, adding
+RAG just gives you a more elaborate system to argue about. Retrieval quality is
+measurable, but only against a labeled set someone actually built.
+
+I&apos;d rather spend the first week defining evaluation than the first month
+tuning a pipeline toward an undefined target.
+
+## So when *is* RAG right?
+
+When all of these are true:
+
+- The knowledge is **unstructured** (documents, not tables).
+- It&apos;s **large enough** that you can&apos;t just prompt with it.
+- It **changes** often enough that baking it into a model would go stale.
+- Answers need to be **grounded and cited** for trust.
+- You have — or will build — a way to **evaluate** answer quality.
+
+When that&apos;s the shape of the problem, RAG is exactly right, and the
+[Enterprise RAG architecture](/architecture/enterprise-rag) is where I&apos;d
+start. The point isn&apos;t that RAG is bad. It&apos;s that &ldquo;reach for RAG
+by default&rdquo; is bad. The best architects I know reach for the *simplest*
+thing that solves the actual problem — and sometimes that&apos;s a SQL query.

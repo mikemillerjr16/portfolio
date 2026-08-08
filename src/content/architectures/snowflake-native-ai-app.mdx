@@ -1,0 +1,89 @@
+---
+title: "Snowflake-Native AI Application"
+slug: "snowflake-native-ai-app"
+summary: "AI that runs where the data already lives — keeping retrieval, inference, and the app inside one governance boundary."
+useCase: "Enterprise AI on governed data that shouldn't leave the platform: internal assistants, NL-to-SQL, in-database scoring."
+complexity: "Intermediate"
+platform: "Snowflake"
+order: 7
+interactive: false
+services:
+  - Cortex AI
+  - Cortex Search
+  - Semantic Views
+  - Snowflake ML
+  - Streamlit
+---
+
+## Business scenario
+
+The data is already in Snowflake, governed and permissioned. Moving it out to an
+external AI stack means re-solving security, access, and residency — for no real
+benefit. This pattern keeps retrieval, inference, and the user-facing app inside
+the platform boundary.
+
+## Request & data flow
+
+1. A user asks a question in a **Streamlit** app running in the platform.
+2. For knowledge questions, **Cortex Search** retrieves grounded passages; for
+   analytics, a **semantic view** powers natural-language-to-SQL.
+3. **Cortex AI** functions generate the answer; **Snowflake ML** handles any
+   scoring or classification.
+4. Results return to the app — all without data leaving the boundary.
+
+## Component-by-component
+
+- **Streamlit in-platform.** The user-facing app, co-located with the data.
+- **Cortex Search.** In-platform vector retrieval for RAG.
+- **Semantic views/models.** The business layer that makes NL-to-SQL trustworthy.
+- **Cortex AI / Snowflake ML.** In-database generation and scoring.
+
+## Why each service was chosen
+
+Co-locating everything removes an entire class of security and data-movement
+problems. The semantic layer is what makes natural-language analytics reliable —
+it constrains the model to defined metrics instead of guessing at raw tables.
+
+## Alternatives considered
+
+- **External AI stack over exported data.** More model choice, but you inherit
+  the security and residency burden of moving governed data.
+- **Best-of-breed vector DB.** More tuning knobs; weigh them against the
+  operational simplicity of staying native.
+
+## Scaling considerations
+
+Compute scales with warehouse sizing; separate workloads so interactive apps
+don't compete with heavy batch jobs.
+
+## Security considerations
+
+Role-based access control applies uniformly because nothing leaves the boundary.
+Retrieval inherits the same permissions as the underlying tables.
+
+## Failure handling
+
+Grounding checks on generated answers; fall back to "no answer" rather than an
+ungrounded response. Guard NL-to-SQL against unbounded or unsafe queries.
+
+## Observability
+
+Query history and cost monitoring are built in; add evaluation for the AI outputs
+specifically, which platform metrics won't cover.
+
+## Cost considerations
+
+Costs track compute (warehouse) and AI function usage. Right-size warehouses and
+scope retrieval to control spend; there's no separate always-on inference cluster
+to fund.
+
+## When *not* to use this
+
+If you need a model or capability the platform doesn't offer, or the data isn't
+in the platform to begin with, the native advantage disappears.
+
+## Interview discussion points
+
+- What do you gain by keeping AI inside the data platform?
+- Why does NL-to-SQL need a semantic layer?
+- How do table permissions flow into retrieval?

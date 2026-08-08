@@ -1,0 +1,115 @@
+---
+title: "Enterprise RAG Architecture"
+slug: "enterprise-rag"
+summary: "Grounded generation over private, permissioned data — with guardrails and evaluation around the loop."
+useCase: "Answer employee or customer questions from internal knowledge, with citations and no hallucinated advice."
+complexity: "Advanced"
+platform: "Cloud-agnostic"
+order: 1
+interactive: true
+services:
+  - Vector Search
+  - Embeddings
+  - LLM
+  - Orchestration
+  - Guardrails
+---
+
+## Business scenario
+
+An enterprise wants a question-answering assistant grounded in its own
+documents — policies, SOPs, product docs — rather than the open internet. The
+answers have to be current, respect who is allowed to see what, and be checkable
+by a human. This is the most common enterprise GenAI pattern, and the one most
+often built badly.
+
+## Request & data flow
+
+Use the interactive diagram above to walk the flow. In short: a question is
+embedded and used to retrieve the most relevant passages from a vector index;
+those passages become the context an LLM is allowed to use; the draft answer is
+checked for grounding and policy before it's returned with citations. An
+ingestion path keeps the index current from the source documents, and everything
+is logged and evaluated.
+
+## Component-by-component
+
+- **Orchestration / API.** Coordinates the steps and owns auth, policy, and
+  logging. Kept thin on purpose.
+- **Embedding + retrieval.** Turns the query into a vector and finds nearest
+  passages. Quality here sets the ceiling for the whole system.
+- **Vector index.** Fast semantic search over embedded chunks; kept fresh by
+  ingestion.
+- **Source documents.** The authoritative corpus, chunked and embedded with
+  permissions preserved.
+- **LLM generation.** Synthesizes an answer from retrieved context only.
+- **Grounding & guardrails.** Verifies the answer is supported by its sources and
+  applies safety filters.
+- **Observability & evaluation.** Logs and offline evaluation to catch drift.
+
+## Why each service was chosen
+
+Retrieval exists so answers are grounded in real, permissioned data instead of
+the model's memory. The index is purpose-built because semantic search needs to
+stay fast as the corpus grows. Guardrails exist because a fluent wrong answer is
+the failure mode that erodes trust fastest — so grounding is verified, not
+assumed.
+
+## Alternatives considered
+
+- **Fine-tuning instead of retrieval.** Bakes knowledge into weights, but it
+  goes stale, is expensive to update, and can't enforce per-user permissions.
+  Retrieval keeps knowledge external and current.
+- **Long-context stuffing.** Dropping whole documents into the prompt works at
+  small scale but gets expensive and dilutes relevance as content grows.
+- **Hybrid retrieval + re-ranking.** Often the right *upgrade* once pure vector
+  search plateaus — worth adding when retrieval quality is the bottleneck.
+
+## Scaling considerations
+
+Retrieval and generation scale independently. The index scales with corpus size;
+generation scales with request volume. Cache embeddings for repeated queries,
+and batch ingestion so index updates don't compete with serving.
+
+## Security considerations
+
+Permissions must survive from the source documents all the way into retrieval —
+the assistant should never surface content a user isn't entitled to. Keep data
+inside the governance boundary where possible, and never place sensitive content
+in logs or URLs.
+
+## Failure handling
+
+- **No relevant results:** return "no grounded answer found" rather than letting
+  the model guess.
+- **LLM/timeout errors:** fail closed with a clear message; never fall back to an
+  ungrounded answer.
+- **Stale index:** freshness monitoring on ingestion so answers don't quietly
+  drift from the source of truth.
+
+## Observability
+
+Log the query, the retrieved sources, the model version, and the final answer.
+Maintain a labeled evaluation set and run it on changes so retrieval and
+grounding regressions are caught before users see them.
+
+## Cost considerations
+
+The main levers are retrieval scope (tighter is cheaper and often better),
+model size (a smaller grounded model frequently beats a larger ungrounded one),
+and how often you re-embed. Scale-to-zero components keep idle cost near zero for
+lower-volume assistants.
+
+## When *not* to use this
+
+If the questions are answerable from structured data, use text-to-SQL over a
+semantic layer instead — it's cheaper and exact. If the corpus is tiny and
+static, prompt-stuffing may be simpler than standing up an index. RAG earns its
+complexity when the knowledge is large, changing, and permissioned.
+
+## Interview discussion points
+
+- How do you keep document permissions intact through retrieval?
+- What's your plan when retrieval returns nothing relevant?
+- How do you evaluate a non-deterministic answer for correctness?
+- Where would hybrid retrieval or re-ranking change the design?

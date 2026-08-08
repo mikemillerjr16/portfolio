@@ -1,0 +1,233 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   Design tokens
+   --------------------------------------------------------------------------
+   Colors are stored as space-separated RGB channels so Tailwind can apply
+   opacity via `rgb(var(--token) / <alpha-value>)`.
+
+   >> To re-theme the whole site, change the --accent* values below. <<
+   The default accent is Indigo. Swap the three --accent lines in both
+   :root (light) and .dark (dark) to change it everywhere.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  --bg: 250 250 251;
+  --surface: 255 255 255;
+  --surface-2: 245 246 248;
+  --border: 226 228 233;
+
+  --fg: 15 23 42;
+  --muted: 71 85 105;
+  --subtle: 100 116 139;
+
+  /* Accent — Indigo */
+  --accent: 79 70 229;
+  --accent-fg: 255 255 255;
+  --accent-soft: 238 242 255;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --bg: 9 12 20;
+  --surface: 17 22 34;
+  --surface-2: 24 30 45;
+  --border: 40 48 66;
+
+  --fg: 237 240 247;
+  --muted: 160 172 194;
+  --subtle: 128 140 163;
+
+  /* Accent — Indigo (lighter for contrast on dark) */
+  --accent: 129 140 248;
+  --accent-fg: 15 18 28;
+  --accent-soft: 32 34 60;
+}
+
+* {
+  border-color: rgb(var(--border));
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
+}
+
+body {
+  background-color: rgb(var(--bg));
+  color: rgb(var(--fg));
+  font-feature-settings: "cv11", "ss01";
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Consistent, visible focus for keyboard users */
+:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: rgb(var(--accent) / 0.22);
+}
+
+/* --------------------------------------------------------------------------
+   Reusable component classes
+   -------------------------------------------------------------------------- */
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-content px-5 sm:px-6 lg:px-8;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border text-sm font-medium
+           transition-colors duration-200 focus-visible:outline-none disabled:cursor-not-allowed
+           disabled:opacity-60;
+  }
+  .btn-md {
+    @apply h-11 px-5;
+  }
+  .btn-sm {
+    @apply h-9 px-4 text-[0.8125rem];
+  }
+  .btn-primary {
+    @apply border-transparent bg-accent text-accent-fg hover:bg-accent/90;
+  }
+  .btn-secondary {
+    @apply border-border bg-surface text-fg hover:border-accent/50 hover:text-accent;
+  }
+  .btn-ghost {
+    @apply border-transparent bg-transparent text-muted hover:bg-surface-2 hover:text-fg;
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-2
+           px-3 py-1 text-xs font-medium text-muted;
+  }
+  .pill-accent {
+    @apply border-transparent bg-accent-soft text-accent;
+  }
+
+  .card {
+    @apply rounded-2xl border border-border bg-surface shadow-soft transition-all duration-300;
+  }
+  .card-hover {
+    @apply hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-soft-lg;
+  }
+
+  .eyebrow {
+    @apply font-mono text-xs font-medium uppercase tracking-[0.18em] text-accent;
+  }
+
+  .link-underline {
+    @apply text-accent underline decoration-accent/30 underline-offset-4
+           transition-colors hover:decoration-accent;
+  }
+
+  /* Subtle node/data-flow motif used behind hero + section headers */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, rgb(var(--border) / 0.5) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(var(--border) / 0.5) 1px, transparent 1px);
+    background-size: 3rem 3rem;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 72%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 72%);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Article / MDX prose
+   -------------------------------------------------------------------------- */
+.prose-content {
+  @apply text-[1.0625rem] leading-8 text-muted;
+}
+.prose-content > * + * {
+  @apply mt-6;
+}
+.prose-content h2 {
+  @apply mt-12 scroll-mt-28 text-2xl font-semibold tracking-tight text-fg;
+}
+.prose-content h3 {
+  @apply mt-9 scroll-mt-28 text-xl font-semibold tracking-tight text-fg;
+}
+.prose-content h4 {
+  @apply mt-8 text-base font-semibold uppercase tracking-wide text-fg;
+}
+.prose-content p {
+  @apply text-muted;
+}
+.prose-content strong {
+  @apply font-semibold text-fg;
+}
+.prose-content a {
+  @apply link-underline;
+}
+.prose-content ul {
+  @apply list-disc space-y-2 pl-6 marker:text-accent;
+}
+.prose-content ol {
+  @apply list-decimal space-y-2 pl-6 marker:text-subtle;
+}
+.prose-content li {
+  @apply text-muted;
+}
+.prose-content li::marker {
+  @apply font-medium;
+}
+.prose-content blockquote {
+  @apply border-l-2 border-accent bg-surface-2 py-2 pl-5 pr-4 text-fg;
+}
+.prose-content code {
+  @apply rounded-md border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-[0.85em] text-fg;
+}
+.prose-content pre {
+  @apply overflow-x-auto rounded-xl border border-border bg-surface-2 p-4 text-sm;
+}
+.prose-content pre code {
+  @apply border-0 bg-transparent p-0 text-muted;
+}
+.prose-content hr {
+  @apply my-10 border-border;
+}
+.prose-content table {
+  @apply block w-full overflow-x-auto text-left text-sm;
+}
+.prose-content th {
+  @apply border-b border-border py-2 pr-4 font-semibold text-fg;
+}
+.prose-content td {
+  @apply border-b border-border py-2 pr-4 align-top text-muted;
+}
+
+/* --------------------------------------------------------------------------
+   Print — keep resume/article views clean
+   -------------------------------------------------------------------------- */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
+}

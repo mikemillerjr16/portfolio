@@ -1,0 +1,89 @@
+---
+title: "Human-in-the-Loop AI"
+slug: "human-in-the-loop-ai"
+summary: "A review checkpoint that keeps a person in control of consequential AI actions — the pattern that makes AI deployable in high-stakes work."
+useCase: "Any workflow where a wrong automated action is expensive: customer communications, financial actions, clinical or legal support."
+complexity: "Foundational"
+platform: "Cloud-agnostic"
+order: 4
+interactive: false
+services:
+  - AI model
+  - Review UI
+  - Confidence routing
+  - Audit log
+  - Feedback loop
+---
+
+## Business scenario
+
+The AI is good, but not good enough to act unsupervised where mistakes are
+costly. Human-in-the-loop keeps a person as the decision-maker while the AI does
+the heavy lifting — draft, recommend, prioritize — turning "we can't trust it to
+act" into "we can ship it today."
+
+## Request & data flow
+
+1. The AI produces an output with a **confidence signal**.
+2. **Routing** decides: auto-handle the easy, high-confidence cases; send the
+   rest to a human.
+3. A **review UI** presents the AI's suggestion, its evidence, and an
+   accept/edit/reject control.
+4. The decision is **logged**, and edits feed a **feedback loop** for improvement.
+
+## Component-by-component
+
+- **AI model.** Generates the suggestion and a confidence estimate.
+- **Confidence routing.** Sends only the uncertain or high-stakes cases to people.
+- **Review UI.** Makes the AI's reasoning and evidence reviewable, not just its
+  answer.
+- **Audit log + feedback.** Records who decided what, and turns corrections into
+  training signal.
+
+## Why each service was chosen
+
+Confidence routing is what keeps humans focused on the cases that need them
+instead of rubber-stamping everything. The review UI shows *evidence*, because a
+reviewer can only add value if they can check the AI's reasoning.
+
+## Alternatives considered
+
+- **Full automation.** Appropriate only when the cost of a wrong action is low.
+- **Full manual review.** Safe but doesn't scale; wastes the AI's leverage on
+  easy cases.
+
+## Scaling considerations
+
+As the model improves, raise the confidence threshold for auto-handling to move
+work off people — but keep sampling auto-handled cases to catch drift.
+
+## Security considerations
+
+Log decisions immutably; control who can approve what; ensure reviewers see only
+data they're entitled to.
+
+## Failure handling
+
+Fail toward human review, never toward silent automation. If confidence can't be
+computed, route to a person.
+
+## Observability
+
+Track auto-handle rate, reviewer override rate, and downstream error rate.
+A rising override rate means the model is drifting or the threshold is wrong.
+
+## Cost considerations
+
+Human review is the dominant cost — the design's whole economic goal is to
+safely shrink the share of cases that need it over time.
+
+## When *not* to use this
+
+If actions are fully reversible and low-stakes, the review step is friction.
+Reserve it for consequential decisions.
+
+## Interview discussion points
+
+- How do you decide which cases get human review?
+- How do reviewer corrections improve the model?
+- How do you keep the auto-handled path from drifting unnoticed?

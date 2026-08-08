@@ -1,0 +1,98 @@
+---
+title: "Governed Multi-Agent Review"
+slug: "governed-multi-agent-review"
+summary: "Several specialized agents draft, critique, and escalate together, with an adversarial critic whose only job is to reject claims the evidence does not support."
+useCase: "High-stakes drafting where a confident wrong answer is a liability: security questionnaires, compliance responses, contract review."
+complexity: "Advanced"
+platform: "AWS"
+order: 3
+interactive: false
+services:
+  - Retrieval agent
+  - Drafting agent
+  - Critic agent
+  - Human approval
+  - Evaluation harness
+---
+
+## Business scenario
+
+Some documents are trust documents. A security questionnaire, a compliance
+response, a vendor attestation: every answer is a commitment, and a wrong answer
+is a future liability. A single model asked to "answer carefully" is not reliable
+enough here, because the failure you care about is the fluent answer that sounds
+right and is not supported. This pattern splits the work across agents and adds an
+adversary whose job is to catch exactly that.
+
+## Request & data flow
+
+1. Intake parses the source into individual items with category and scope.
+2. A retrieval agent pulls scoped evidence from a governed library.
+3. A drafting agent writes an answer strictly from that evidence.
+4. A critic agent tries to reject the answer, checking whether the evidence
+   actually supports the claim.
+5. Supported answers are drafted for review; unsupported or conflicting ones are
+   escalated to the right human owner. Nothing is auto-submitted.
+
+## Component-by-component
+
+- **Retrieval agent.** Finds evidence scoped by product, region, and tier, so a
+  draft can never cite something out of scope or expired.
+- **Drafting agent.** Composes only from retrieved evidence, never from parametric
+  memory.
+- **Critic agent (adversarial).** The heart of the pattern. Its incentive is to
+  find the hole, not to be agreeable.
+- **Human approval.** The team keeps control of every answer that leaves the
+  building.
+- **Evaluation harness.** Planted traps the critic is expected to catch, so
+  governance is measurable rather than aspirational.
+
+## Why each service was chosen
+
+Separation of concerns is the whole point. One agent that drafts and self-checks
+will rationalize its own answer. A distinct critic with an adversarial prompt
+catches unsupported commitments a single pass misses. Governed evidence, with
+owners and expiry, is what lets a security team actually stand behind the output.
+
+## Alternatives considered
+
+- **A single RAG call.** Fine for low-stakes Q&A. It lacks the adversarial second
+  opinion that high-stakes drafting needs.
+- **Full autonomy (auto-submit).** Rejected. The value here is the refusal and the
+  escalation, not the throughput.
+
+## Scaling considerations
+
+Items are independent, so the pipeline fans out naturally. Cost scales with the
+number of agent passes per item; a smaller model is often enough for retrieval and
+critique.
+
+## Security considerations
+
+Treat retrieved evidence as data, not instructions, to blunt prompt injection.
+Scope the evidence library tightly, and keep the approval gate on anything that
+becomes an external commitment.
+
+## Observability
+
+Trace each agent's contribution: what was retrieved, what was drafted, why the
+critic accepted or rejected. The trace is what makes the system reviewable, and
+reviewability is what makes it deployable.
+
+## Cost considerations
+
+More agents mean more model calls per item. Favor in-memory retrieval over a
+standing vector database for bounded corpora, and cap passes per item so a single
+review cannot run away.
+
+## When *not* to use this
+
+If the answer is low-stakes or easily reversible, a single grounded call is
+cheaper and simpler. Reach for the critic and the escalation path only when a
+confident wrong answer actually costs something.
+
+## Interview discussion points
+
+- Why does a separate critic beat a single self-checking model?
+- How do you make governance measurable rather than a claim?
+- Where does the human belong, and what should never be automated?

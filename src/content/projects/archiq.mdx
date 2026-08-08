@@ -1,0 +1,89 @@
+---
+title: "ArchIQ — AWS Solutions Architect Study Platform"
+slug: "archiq"
+summary: "An interactive AWS Solutions Architect (SAA-C03) playbook with 118 topics, decision guides, and a grounded AI tutor that answers only from the material it can cite."
+problem: "Most cert prep is passive recall. The harder skill, and the one the exam actually tests, is reasoning through architecture trade-offs under real constraints."
+featured: true
+status: "Live demo"
+order: 3
+categories:
+  - Generative AI
+  - RAG
+  - AWS
+technologies:
+  - Amazon Bedrock
+  - AWS Lambda
+  - CloudFront
+  - Amazon S3
+  - TypeScript
+liveUrl: "https://archiq.mikemiller.ai"
+githubUrl: "https://github.com/mikemillerjr16"
+coverImage: "/images/projects/archiq.png"
+---
+
+## Overview
+
+ArchIQ is an interactive study platform for the AWS Solutions Architect Associate exam
+(SAA-C03). It covers the four Well-Architected domains across 118 topics, with decision
+guides, service comparisons, and scenario questions built to train architectural
+reasoning rather than flash-card recall. It also ships an AI tutor, Ask ArchIQ, that
+answers only from the material it can cite.
+
+I built it while preparing for the exam myself. Writing the material down is how I know I
+actually understand it, and turning it into a public artifact made the knowledge sharper.
+
+## Business problem
+
+The exam does not reward memorizing service names. It rewards choosing between SQS, SNS,
+and EventBridge for a given scenario, or knowing when RDS Multi-AZ is the answer and when
+you actually need read replicas. Passive study material does not build that skill, and a
+general-purpose chatbot will happily invent a confident, wrong answer about an AWS
+service.
+
+## What it does
+
+- Four domains, structured. Secure, Resilient, High-Performing, and Cost-Optimized, with
+  progress tracking so you can see your weakest area.
+- Decision guides. Side-by-side reasoning for the comparisons the exam loves: SQS vs SNS
+  vs EventBridge, RDS Multi-AZ vs read replicas, ALB vs NLB vs GWLB, EC2 vs Lambda vs
+  Fargate.
+- Scenario questions and exam traps. Practice that mirrors how the exam actually phrases
+  its trade-offs.
+- Ask ArchIQ. A grounded AI tutor that uses a page-anchored RAG pattern with adjustable
+  answer depth, so its answers stay tied to the topic you are on.
+
+## Architecture
+
+ArchIQ is a fully serverless AWS site, and it doubles as a working example of the exact
+patterns it teaches.
+
+- Built with Vite, React, and TypeScript, with 175+ typed content modules and Mermaid
+  architecture diagrams.
+- Hosted on private S3 behind CloudFront with Origin Access Control, HTTP/2 and HTTP/3,
+  Route 53, and an ACM certificate.
+- Ask ArchIQ runs on a Node.js Lambda behind API Gateway, calling Amazon Bedrock with a
+  page-grounded RAG pattern and hardened prompt-injection defenses, with DynamoDB-backed
+  rate limiting.
+- Infrastructure as code with CloudFormation, least-privilege IAM, a shared-secret origin
+  check, GitHub Actions CI/CD over OIDC, and an AWS Budgets alarm to cap Bedrock spend.
+
+## Important design decisions
+
+- Grounded tutor, not a chatbot. Ask ArchIQ answers from the page content, with untrusted
+  context isolated and strict scope enforcement, so it does not drift into invented
+  AWS behavior.
+- Cost caps built in. A Budgets alarm on Bedrock spend and DynamoDB rate limiting keep a
+  public AI feature from turning into a surprise bill.
+- The site practices what it teaches. The hosting and security choices are the same
+  Well-Architected patterns the content walks through.
+
+## Lessons learned
+
+- Teaching a topic is the most demanding way to learn it. Turning exam prep into a
+  grounded tutor forced me to make the reasoning explicit.
+- Hardening a public AI endpoint, against prompt injection and against cost, is most of
+  the real engineering. The model call is the easy part.
+
+## Links
+
+- Live demo: [archiq.mikemiller.ai](https://archiq.mikemiller.ai)

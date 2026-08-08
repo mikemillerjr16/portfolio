@@ -1,0 +1,89 @@
+---
+title: "Real-Time Streaming Analytics"
+slug: "real-time-streaming-analytics"
+summary: "Low-latency ingest-to-insight for events that lose value if you wait — with a batch layer for correctness."
+useCase: "Operational dashboards, anomaly detection, and alerting where minutes-old data is already too old."
+complexity: "Intermediate"
+platform: "Cloud-agnostic"
+order: 6
+interactive: false
+services:
+  - Kafka / Kinesis
+  - Stream processor
+  - Real-time store
+  - Dashboard
+  - Warehouse
+---
+
+## Business scenario
+
+Some decisions can't wait for the nightly batch — a fraud signal, a spike in
+errors, a live operational KPI. This pattern gets events from source to insight
+in seconds, while still landing the same data in the warehouse for exact,
+historical analysis.
+
+## Request & data flow
+
+1. Producers publish events to a **streaming log** (Kafka/Kinesis).
+2. A **stream processor** aggregates and enriches in flight.
+3. Results land in a **real-time store** powering live dashboards and alerts.
+4. Raw events also flow to the **warehouse** for correct, replayable history.
+
+## Component-by-component
+
+- **Streaming log.** Durable, ordered, replayable backbone; decouples producers
+  from consumers.
+- **Stream processor.** Windowed aggregation and enrichment as data flows.
+- **Real-time store.** Serves low-latency reads for dashboards and alerting.
+- **Warehouse.** The source of truth for exact, historical queries.
+
+## Why each service was chosen
+
+The streaming log is replayable, so consumers can be rebuilt or added without
+losing data. The dual path (speed + batch) acknowledges a truth: real-time
+approximations and batch exactness are both valuable, and you rarely get both
+from one system.
+
+## Alternatives considered
+
+- **Polling a database frequently.** Simple, but it doesn't scale and adds load
+  to the operational store.
+- **Pure batch.** Cheaper and simpler when latency truly doesn't matter — which
+  is more often than teams assume.
+
+## Scaling considerations
+
+Partition the log for parallelism; scale processors per partition. Watch for hot
+partitions from skewed keys.
+
+## Security considerations
+
+Encrypt streams; authenticate producers and consumers; restrict topic access.
+Treat the stream as sensitive — it often carries raw operational data.
+
+## Failure handling
+
+Consumer offsets and replay let a failed processor resume without data loss.
+Handle late and out-of-order events explicitly with windowing and watermarks.
+
+## Observability
+
+Monitor consumer lag above all — it's the definitive signal that processing is
+falling behind production.
+
+## Cost considerations
+
+Streaming infrastructure is largely always-on, so it carries a standing cost.
+Justify it with a real latency requirement; don't pay for real-time to serve a
+daily report.
+
+## When *not* to use this
+
+If the business decision is made daily, batch is cheaper and simpler. Real-time
+is for when the value of the data decays in minutes.
+
+## Interview discussion points
+
+- Why keep both a speed layer and a batch layer?
+- How do you handle late-arriving events?
+- What does consumer lag tell you, and how do you act on it?

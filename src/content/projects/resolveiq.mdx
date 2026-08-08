@@ -1,0 +1,131 @@
+---
+title: "ResolveIQ — Enterprise AI Case Resolution"
+slug: "resolveiq"
+summary: "An AI platform that turns fragmented, high-risk support cases into cited, evidence-backed resolution recommendations, and keeps a human in control of every decision."
+problem: "Enterprise support teams sit on scattered case data and tribal knowledge, and most AI demos ignore the governance reality of acting on a real customer account."
+featured: true
+status: "Live demo"
+order: 1
+categories:
+  - Generative AI
+  - RAG
+  - Agentic AI
+  - Machine Learning
+  - AWS
+technologies:
+  - Amazon Bedrock
+  - Step Functions
+  - AWS Lambda
+  - DynamoDB
+  - AWS CDK
+liveUrl: "https://resolveiq.mikemiller.ai"
+githubUrl: "https://github.com/mikemillerjr16"
+coverImage: "/images/projects/resolveiq.png"
+---
+
+## Overview
+
+ResolveIQ is an enterprise AI platform for case and incident resolution. It takes a
+messy, high-stakes support case and turns it into a resolution recommendation that
+cites the policies and prior incidents behind it, scores the risk, and stops at a human
+approval gate before anything is actioned. The tagline on the app says it plainly:
+evidence in, decision yours.
+
+It is a real deployment running on AWS with synthetic data. You can open the live demo,
+pick a role, and walk a case end to end without an account.
+
+> The metrics below come from a synthetic golden set built to exercise the system, not
+> from a customer production environment. I frame them as demonstrated behavior, not
+> delivered business ROI.
+
+## Business problem
+
+Support and operations teams face the same three problems at once:
+
+- High-risk cases hide inside ordinary ones. The case that breaches an SLA or churns an
+  account looks like every other ticket until it is too late.
+- The answer usually exists already, in a policy, a runbook, or a senior engineer's
+  memory. Finding it and trusting it is the job.
+- An AI assistant can help with both, but only if a reviewer can see why it said what it
+  said and stays in control of what happens next.
+
+## Target users
+
+- Case specialists who need a defensible next step, fast.
+- Operations leaders who need visibility into risk and consistency.
+- AI and architecture reviewers who need to audit how a recommendation was formed.
+
+The live demo lets you assume each of these roles so you can see the same case from
+different vantage points.
+
+## Architecture
+
+ResolveIQ is serverless and AWS-native. A case moves through an orchestrated pipeline
+with a human decision at the end.
+
+1. A case enters and is grouped and enriched, then risk-scored by an ML inference step.
+2. A retrieval step pulls relevant policies and similar prior incidents from an Amazon
+   Bedrock Knowledge Base backed by an S3 vector store.
+3. Retrieved evidence, the risk score, and case context are composed into a grounded
+   recommendation with inline source citations.
+4. The recommendation is presented for a human to approve, modify, or escalate. Nothing
+   acts on a customer automatically.
+5. Every step, including the human decision, is written to an audit trail.
+
+## Architecture walkthrough
+
+- Amplify hosts the Next.js frontend; Cognito guards an API Gateway HTTP API.
+- Domain-grouped Lambda functions handle the application logic, orchestrated by AWS Step
+  Functions for the multi-step resolution flow.
+- Amazon Bedrock Knowledge Bases provide retrieval over an S3 vector store, with Bedrock
+  Guardrails on the generation step.
+- A machine learning step produces the risk score that routes attention to the cases
+  that need it.
+- DynamoDB holds case state and the audit history; EventBridge and CloudWatch cover
+  events and observability.
+- The whole stack is defined in AWS CDK, so the environment is reproducible and every
+  change is reviewable.
+
+## Important design decisions
+
+- Retrieval before generation, always. The model composes from retrieved evidence and
+  cites it. If the evidence is weak, the recommendation says so rather than guessing.
+- Human-in-the-loop by default. The system drafts and recommends; a person decides. That
+  line is the difference between a copilot and an agent acting on a customer.
+- Role-based access. Case specialist, operations leader, and reviewer see different
+  controls, which keeps approval authority where it belongs.
+- Scale to zero with per-run cost visibility. The design shows what a single resolution
+  costs, because cost is a first-order concern for anyone putting this in production.
+
+## Security and governance
+
+- Guardrails on generation, source attribution on every claim, and an approval gate
+  before any downstream action.
+- An immutable audit trail records inputs, retrieved sources, the risk score, and the
+  human decision.
+- Least-privilege IAM and Cognito-guarded APIs; no long-lived credentials in the app.
+
+## Evaluation & success metrics
+
+- Retrieval is measured against a labeled set to confirm the right evidence surfaces for
+  representative cases.
+- Grounding checks flag any recommendation not supported by its citations.
+- The risk model is monitored with standard classification metrics.
+
+## Challenges
+
+- The hard part was not retrieval. It was making the generation step refuse to answer
+  confidently when the evidence did not support it.
+- Designing the approval gate so it felt like leverage for a reviewer, not a speed bump,
+  took more iteration than the model work did.
+
+## Lessons learned
+
+- The gap between a good demo and a deployable system is mostly governance, evaluation,
+  and human-in-the-loop design, not model quality.
+- Citations are what make an AI recommendation reviewable, and reviewability is what
+  makes it shippable.
+
+## Links
+
+- Live demo: [resolveiq.mikemiller.ai](https://resolveiq.mikemiller.ai)

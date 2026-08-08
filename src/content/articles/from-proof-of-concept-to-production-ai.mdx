@@ -1,0 +1,53 @@
+---
+title: "From Proof of Concept to Production AI"
+slug: "from-proof-of-concept-to-production-ai"
+subtitle: "The demo worked. Everyone was impressed. Now comes the part that actually decides whether the project succeeds — and it's mostly not about the model."
+date: "2026-03-14"
+readingTime: "5 min read"
+featured: false
+tags:
+  - AI Adoption
+  - Governance
+  - Evaluation
+relatedProjects:
+  - resolveiq
+---
+
+A proof of concept proves that an idea *can* work. Production proves that it can
+be *operated* — safely, affordably, and by a team that isn&apos;t you. The
+distance between those two is where most enterprise AI projects stall, and it&apos;s
+rarely because the model wasn&apos;t good enough.
+
+## The demo hides the hard part
+
+A POC is optimized to impress in a controlled setting. It runs on clean data, a
+friendly question, and a forgiving audience. None of the things that make
+production hard are visible in that room:
+
+- **Evaluation.** How do you know it&apos;s still good next month, on data you
+  haven&apos;t seen?
+- **Monitoring.** How do you detect drift before your users do?
+- **Security & governance.** Who can see what, and how is every decision logged?
+- **Cost at scale.** What does this cost at 100× the demo&apos;s volume?
+- **Human-in-the-loop.** Where does a person stay in control of consequential
+  actions?
+
+## Make the gap visible
+
+The most useful thing I do at this stage is refuse to let &ldquo;almost
+done&rdquo; stay vague. I turn the remaining work into an explicit checklist with
+the customer, so the last stretch is planned rather than assumed. A POC with a
+90%-impressive demo is often less than halfway to production — and naming that
+honestly builds more trust than optimism does.
+
+## Treat AI like the production software it is
+
+Non-deterministic systems need *more* operational rigor than deterministic ones,
+not less. Evaluation sets, monitoring, audit logging, and clear failure modes
+aren&apos;t bureaucracy — they&apos;re what let you put the thing in front of real
+customers and sleep at night. The [Support Operations
+Copilot](/projects/enterprise-ai-support-copilot) was built specifically to show
+that gap end to end.
+
+The goal was never a great demo. It was a system a team can confidently own after
+I&apos;m gone.

@@ -1,0 +1,48 @@
+---
+title: "Agentic AI vs. Structured AI Workflows"
+slug: "agentic-ai-vs-structured-workflows"
+subtitle: "The word 'agent' is doing a lot of work in enterprise conversations right now. Most of the time, a structured workflow is the better answer — here's how to tell the difference."
+date: "2026-05-02"
+readingTime: "6 min read"
+featured: false
+tags:
+  - Agentic AI
+  - Architecture
+  - Cost
+relatedProjects:
+  - trustresponse
+---
+
+There&apos;s a simple test I use to decide between an agent and a workflow, and
+it cuts through most of the hype: **can you write down the steps in advance?**
+
+If you can, you want a workflow. If the next step genuinely depends on what an
+earlier step discovers — in a way you can&apos;t enumerate ahead of time — then,
+and only then, you want an agent.
+
+## Why the distinction matters
+
+Agents are more powerful and far more expensive — in tokens, in latency, and in
+the effort required to make them safe and debuggable. Every autonomous loop is
+something you have to bound, monitor, and defend against prompt injection. That
+cost is worth paying when the problem needs it. It&apos;s waste when it
+doesn&apos;t.
+
+## Most "agent" requests are workflows
+
+When I walk through a task concretely with a customer, it usually turns out to be
+a fixed sequence: validate input, look something up, apply a rule, produce
+output. That&apos;s a workflow. It&apos;s cheaper, faster, easier to test, and
+easier to trust — and it will still use an LLM at the steps that need one.
+
+## When an agent is genuinely the right call
+
+Reach for an agent when the path must be decided at runtime: open-ended research,
+triage where the investigation branches based on findings, or orchestration
+across systems where you can&apos;t predict the order. In those cases, bound it
+carefully — a step budget, typed and permissioned tools, and a human approval gate
+in front of anything irreversible.
+
+The [Agentic AI Workflow](/architecture/agentic-ai-workflow) pattern goes deeper
+on how to build one safely. But the first question is always whether you need one
+at all.

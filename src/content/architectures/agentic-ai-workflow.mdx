@@ -1,0 +1,93 @@
+---
+title: "Agentic AI Workflow"
+slug: "agentic-ai-workflow"
+summary: "An LLM that plans, calls tools, observes results, and loops — used only when the task genuinely needs it."
+useCase: "Multi-step tasks where the path isn't known in advance: research, triage, or orchestration across systems."
+complexity: "Advanced"
+platform: "Cloud-agnostic"
+order: 2
+interactive: false
+services:
+  - LLM
+  - Tool calling
+  - Orchestration
+  - State store
+  - Guardrails
+---
+
+## Business scenario
+
+A task can't be expressed as a fixed sequence of steps — the model has to decide
+what to do next based on what it finds. A support triage agent, for example,
+might look up an account, check recent tickets, and only then decide whether to
+escalate. This is where an *agent* earns its keep over a plain workflow.
+
+## Request & data flow
+
+1. The agent receives a goal and plans an initial step.
+2. It calls a **tool** (an API, a query, a retriever) to act or gather information.
+3. It **observes** the result and updates its state.
+4. It loops — plan, act, observe — until the goal is met or a stop condition trips.
+5. A human approves any consequential action before it executes.
+
+## Component-by-component
+
+- **LLM (reasoner).** Decides the next step from the current state.
+- **Tool layer.** A typed, permissioned set of actions the agent may take.
+- **Orchestration + state.** Tracks steps, results, and a running budget of
+  iterations and tokens.
+- **Guardrails + human-in-the-loop.** Bounds what the agent can do and inserts
+  approval before irreversible actions.
+
+## Why each service was chosen
+
+The loop exists because the task is non-deterministic. Tools are typed and
+permissioned so the agent's freedom is bounded to safe operations. A step/token
+budget exists because agents left unbounded will happily loop forever.
+
+## Alternatives considered
+
+- **A fixed workflow.** If you can enumerate the steps, do — it's cheaper,
+  faster, and easier to test. Most "agent" requests are really workflows.
+- **A single LLM call with tools.** Enough when the task is one hop; the loop is
+  only justified when later steps depend on earlier results.
+
+## Scaling considerations
+
+Concurrency is bounded by tool rate limits and cost per run. Cache tool results
+where safe, and cap iterations so a single request can't run away.
+
+## Security considerations
+
+Every tool is a new attack surface. Scope credentials tightly, validate tool
+inputs, and never expose a destructive tool without an approval gate. Prompt
+injection through tool results is a real risk — treat retrieved content as data,
+not instructions.
+
+## Failure handling
+
+Detect loops and dead-ends; stop on budget exhaustion with a partial result and a
+clear explanation rather than a silent hang.
+
+## Observability
+
+Trace every step: the plan, the tool call, the observation. Agent failures are
+almost impossible to debug without a full trace of the loop.
+
+## Cost considerations
+
+Agents multiply LLM calls — cost scales with loop length. The step budget is a
+cost control as much as a safety one. Prefer a smaller reasoning model where it's
+sufficient.
+
+## When *not* to use this
+
+If the steps are known, use a workflow. If a single tool-augmented call answers
+the question, skip the loop. Reach for an agent only when the path must be
+decided at runtime.
+
+## Interview discussion points
+
+- How do you decide agent vs. workflow?
+- How do you bound cost and prevent infinite loops?
+- How do you defend against prompt injection via tool outputs?

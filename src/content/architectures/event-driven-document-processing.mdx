@@ -1,0 +1,90 @@
+---
+title: "Event-Driven Document Processing"
+slug: "event-driven-document-processing"
+summary: "A decoupled, serverless pipeline that processes documents as they arrive — extract, enrich, index — and scales to zero."
+useCase: "Ingesting and enriching documents (contracts, invoices, uploads) at unpredictable volume without standing infrastructure."
+complexity: "Intermediate"
+platform: "AWS"
+order: 5
+interactive: false
+services:
+  - S3
+  - Lambda
+  - SQS
+  - Textract
+  - OpenSearch
+---
+
+## Business scenario
+
+Documents arrive unpredictably — a burst of uploads, then nothing for an hour.
+Each needs to be parsed, enriched (classification, extraction, embedding), and
+made searchable. Provisioning for peak wastes money; provisioning for average
+drops documents. Event-driven, serverless processing fits this shape exactly.
+
+## Request & data flow
+
+1. A document lands in **object storage (S3)**, emitting an event.
+2. The event enqueues work on a **queue (SQS)** for durability and backpressure.
+3. **Functions (Lambda)** pick up work: extract text, classify, embed.
+4. Results are written to a **search/index store** and the source is marked done.
+5. Failures land in a **dead-letter queue** for retry and inspection.
+
+## Component-by-component
+
+- **Object storage.** Durable landing zone and system of record for raw files.
+- **Queue.** Decouples arrival from processing; absorbs bursts; enables retries.
+- **Functions.** Stateless workers that scale with the queue depth.
+- **Extraction service.** OCR/parse for unstructured documents.
+- **Index store.** Makes the enriched output searchable.
+
+## Why each service was chosen
+
+The queue is the heart of the design: it turns an unpredictable arrival rate into
+a controllable processing rate, and gives retries for free. Serverless functions
+mean you pay per document, not per hour.
+
+## Alternatives considered
+
+- **A long-running worker pool.** Simpler mental model, but you pay for idle
+  capacity and have to manage scaling yourself.
+- **A batch job on a schedule.** Fine if latency doesn't matter; event-driven
+  wins when documents should be processed promptly.
+
+## Scaling considerations
+
+Concurrency scales with queue depth up to downstream limits (the extraction
+service, the index). Set function concurrency caps so a flood doesn't overwhelm
+dependencies.
+
+## Security considerations
+
+Least-privilege roles per function; encrypt at rest and in transit; never log
+document contents. Validate file types before processing.
+
+## Failure handling
+
+Retries with backoff via the queue; a dead-letter queue captures poison messages
+for inspection instead of silently dropping or infinitely retrying them.
+
+## Observability
+
+Track queue depth, processing latency, error rate, and DLQ size. Queue depth is
+the leading indicator that something downstream is struggling.
+
+## Cost considerations
+
+Near-zero when idle; cost scales linearly with volume. The main levers are
+extraction cost per page and how much enrichment each document needs.
+
+## When *not* to use this
+
+If volume is steady and high, a provisioned pipeline may be cheaper per unit. If
+documents must be processed in strict order, an event-driven fan-out fights you —
+use an ordered stream instead.
+
+## Interview discussion points
+
+- Why put a queue between storage and compute?
+- How do you prevent a burst from overwhelming a downstream service?
+- What goes in the dead-letter queue, and who watches it?

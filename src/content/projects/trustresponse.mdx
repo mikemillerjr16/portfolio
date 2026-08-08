@@ -1,0 +1,110 @@
+---
+title: "TrustResponse — Governed Multi-Agent Security Review"
+slug: "trustresponse"
+summary: "A governed multi-agent system that drafts evidence-backed answers to security questionnaires, catches unsupported commitments before they become liabilities, and routes anything risky to a human."
+problem: "Security questionnaires stall enterprise deals for days, and an AI that auto-answers them will confidently commit a company to things it cannot back up."
+featured: true
+status: "Live demo"
+order: 2
+categories:
+  - Generative AI
+  - RAG
+  - Agentic AI
+  - AWS
+technologies:
+  - LangGraph
+  - Amazon Bedrock
+  - AWS Lambda
+  - API Gateway
+  - AWS CDK
+liveUrl: "https://trustresponse.mikemiller.ai"
+githubUrl: "https://github.com/mikemillerjr16"
+coverImage: "/images/projects/trustresponse.png"
+---
+
+## Overview
+
+TrustResponse automates the security questionnaire, the step where enterprise deals go
+quiet for days. It drafts answers from a governed evidence library, runs an adversarial
+critic over every claim, and escalates anything it cannot support to a person. The point
+of the product is not how much it answers. It is what it refuses to answer.
+
+It is a live demo running on AWS. The most interesting thing to watch is the agent trace:
+a retrieval agent, a compliance critic, and a gap agent reasoning out loud, then routing a
+risky question to a human instead of guessing.
+
+> The results below come from a synthetic golden set of 150 questions, not a customer
+> deployment. I frame them as demonstrated behavior.
+
+## Business problem
+
+A security questionnaire is a trust document. Every answer is a commitment, and a wrong
+answer is a future liability. Teams handle them in one of two bad ways: slowly and by
+hand, or quickly with copy-paste that risks overcommitting. An AI can speed this up, but
+only if it is more careful than the humans it is helping, not less.
+
+## How it works
+
+The pipeline is a governed sequence of agents:
+
+1. Intake. The questionnaire is parsed into individual questions with category and tier.
+2. Retrieve. A retrieval agent pulls scoped evidence from the Trust Library.
+3. Draft. A drafting agent writes an answer strictly from that evidence.
+4. Critique. A compliance critic tries to break the answer, checking whether the evidence
+   actually supports the claim.
+5. Approve. Supported answers are drafted for review; unsupported or conflicting ones are
+   escalated to the right human owner.
+
+## The platform
+
+- Governed Trust Library. Evidence is scoped by product, region, and tier, with owners and
+  expiry dates, so an answer can never cite something stale or out of scope.
+- Compliance critic. An adversarial agent whose whole job is to reject claims the evidence
+  does not back. This is what catches unsupported commitments.
+- Consistency engine. Keeps answers to related questions from contradicting each other.
+- Human-in-the-loop. Nothing is auto-submitted. The team stays in control of every answer
+  that leaves the building.
+- Template export. Answers export back into the customer's own format, whether that is
+  Excel, Word, or a portal.
+
+## Important design decisions
+
+- The value is in the refusal. A system that drafts 75 percent of answers and clearly
+  flags the other 25 percent is far more useful than one that answers everything and is
+  quietly wrong somewhere.
+- Adversarial critique as a first-class step. A single model asked to "answer carefully"
+  is not as reliable as a separate agent whose only job is to find the hole.
+- Evidence with governance metadata. Owners and expiry turn the trust library from a
+  document dump into something you can actually stand behind.
+
+## Evaluation & success metrics
+
+On the synthetic golden set:
+
+- Roughly 6.2 hours average turnaround, down from about 3 days by hand.
+- About 75 percent of questions auto-drafted with supporting evidence.
+- 47 unsupported commitments caught across a 150-question review.
+- 0 confidently wrong answers, and a retrieval Hit@1 of 1.00 with MRR of 1.00 on the
+  evaluation set.
+
+The evaluation harness, with planted traps the critic is expected to catch, is what makes
+governance measurable here rather than aspirational.
+
+## Architecture
+
+- A LangGraph-orchestrated agent pipeline runs behind API Gateway on AWS Lambda.
+- Retrieval runs over a managed evidence store; the design favors in-memory retrieval over
+  a standing vector database to keep the demo at roughly zero to a few dollars per month.
+- Delivered as infrastructure as code with AWS CDK and OIDC-based GitHub Actions CI/CD, so
+  there are no long-lived deploy credentials.
+
+## Lessons learned
+
+- An agent system earns trust by what it declines to do. Designing the escalation path was
+  more important than tuning the drafts.
+- Making governance measurable, with an evaluation harness and planted traps, is what turns
+  "we have guardrails" into something you can show a security team.
+
+## Links
+
+- Live demo: [trustresponse.mikemiller.ai](https://trustresponse.mikemiller.ai)
