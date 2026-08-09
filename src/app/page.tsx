@@ -143,29 +143,28 @@ export default function HomePage() {
         </Section>
       </div>
 
-      {/* Final CTA */}
+      {/* Final CTA — dark atmospheric, bookends the hero */}
       <Section>
-        <div className="relative overflow-hidden rounded-3xl border border-border bg-surface px-6 py-14 text-center sm:px-12">
-          <div className="pointer-events-none absolute inset-0 bg-grid opacity-70" aria-hidden />
-          <div className="relative mx-auto max-w-2xl">
-            <h2 className="text-balance text-3xl font-semibold tracking-tight text-fg sm:text-4xl">
+        <div className="evidence-dark rounded-3xl px-6 py-16 text-center sm:px-12">
+          <div className="mx-auto max-w-2xl">
+            <h2 className="text-balance text-3xl font-semibold tracking-tight text-white sm:text-4xl">
               Let&apos;s talk about your AI and data challenges
             </h2>
-            <p className="mt-4 text-lg text-muted">
+            <p className="mt-4 text-lg text-slate-300">
               Whether you&apos;re hiring, exploring a proof of concept, or trying
               to get an AI initiative to production — I&apos;m glad to help think
               it through.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <ResumeButton label="View Resume" />
-              <Link href="/projects" className="btn btn-secondary btn-md">
+              <ResumeButton variant="ghost" label="View Resume" className="btn-evidence border-transparent" />
+              <Link href="/projects" className="btn btn-on-dark btn-md">
                 Explore Projects
               </Link>
               <a
                 href={siteConfig.socials.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-ghost btn-md"
+                className="btn btn-on-dark btn-md"
               >
                 <Linkedin className="h-4 w-4" aria-hidden />
                 Connect on LinkedIn

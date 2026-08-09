@@ -6,66 +6,84 @@ import { capabilities } from "@/data/expertise";
 import { ResumeButton } from "./SiteLinks";
 
 export function Hero() {
+  // Split the role so the second half gets the Evidence gradient for a bit of pop.
+  const role = siteConfig.role;
+  const splitAt = role.indexOf("Architect");
+  const roleHead = splitAt > 0 ? role.slice(0, splitAt) : role;
+  const roleGrad = splitAt > 0 ? role.slice(splitAt) : "";
+
   return (
-    <section className="relative overflow-hidden">
-      {/* Background node/data-flow motif (decorative). */}
-      <div className="pointer-events-none absolute inset-0 bg-grid" aria-hidden />
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-[36rem] bg-gradient-to-b from-accent-soft/40 to-transparent"
-        aria-hidden
-      />
+    <>
+      {/* Evidence hero: dark, atmospheric (glow + faint grid), always dark
+          regardless of the light/dark theme — the signature "pop". */}
+      <section className="evidence-dark">
+        <div className="container-page grid items-center gap-12 pb-20 pt-16 sm:pt-20 lg:grid-cols-[1.1fr_0.9fr] lg:pb-28">
+          <div>
+            <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1 text-xs font-medium text-slate-200 backdrop-blur">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden />
+              Open to senior AI solutions architect &amp; engineer roles
+            </p>
 
-      <div className="container-page relative grid items-center gap-12 pb-16 pt-14 sm:pt-20 lg:grid-cols-[1.15fr_0.85fr] lg:pb-24">
-        <div>
-          <p className="inline-flex items-center gap-2 rounded-full border border-border bg-surface/70 px-3 py-1 text-xs font-medium text-muted backdrop-blur">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden />
-            Open to senior AI solutions architect &amp; engineer roles
-          </p>
+            <h1 className="mt-5 text-balance text-4xl font-semibold leading-[1.06] tracking-tight text-white sm:text-5xl lg:text-[3.4rem]">
+              {roleHead}
+              {roleGrad ? <span className="evidence-grad">{roleGrad}</span> : null}
+            </h1>
 
-          <h1 className="mt-5 text-balance text-4xl font-semibold leading-[1.08] tracking-tight text-fg sm:text-5xl lg:text-[3.5rem]">
-            {siteConfig.role}
-          </h1>
+            <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-slate-300">
+              {siteConfig.tagline}
+            </p>
 
-          <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted">
-            {siteConfig.tagline}
-          </p>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Link href="/projects" className="btn btn-evidence btn-md">
+                View My Work
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </Link>
+              <ResumeButton variant="ghost" className="btn-on-dark" />
+              <Link href="/contact" className="btn btn-on-dark btn-md">
+                Contact Me
+              </Link>
+            </div>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link href="/projects" className="btn btn-primary btn-md">
-              View My Work
-              <ArrowRight className="h-4 w-4" aria-hidden />
-            </Link>
-            <ResumeButton variant="secondary" />
-            <Link href="/contact" className="btn btn-ghost btn-md">
-              Contact Me
-            </Link>
+            <p className="mt-6 inline-flex items-center gap-1.5 text-sm text-slate-400">
+              <MapPin className="h-4 w-4" aria-hidden />
+              {siteConfig.location}
+            </p>
           </div>
 
-          <p className="mt-6 inline-flex items-center gap-1.5 text-sm text-subtle">
-            <MapPin className="h-4 w-4" aria-hidden />
-            {siteConfig.location}
-          </p>
-        </div>
-
-        {/* Headshot */}
-        <div className="relative mx-auto w-full max-w-sm lg:max-w-none">
-          <div className="absolute -inset-3 rounded-3xl bg-gradient-to-br from-accent/15 to-transparent blur-2xl" aria-hidden />
-          <div className="relative overflow-hidden rounded-2xl border border-border bg-surface shadow-soft-lg">
-            <Image
-              src={siteConfig.headshotPath}
-              alt={`Portrait of ${siteConfig.name}`}
-              width={1200}
-              height={1200}
-              priority
-              sizes="(min-width: 1024px) 34rem, (min-width: 640px) 24rem, 90vw"
-              className="aspect-square w-full object-cover"
+          {/* Headshot with a soft glow + gradient frame so it lifts off the dark. */}
+          <div className="relative mx-auto w-full max-w-sm lg:max-w-none">
+            <div
+              className="pointer-events-none absolute -inset-6 rounded-[2rem]"
+              style={{
+                background:
+                  "radial-gradient(60% 60% at 62% 30%, rgba(129,140,248,.45), transparent 70%)",
+                filter: "blur(10px)",
+              }}
+              aria-hidden
             />
+            <div
+              className="relative rounded-2xl p-px shadow-2xl"
+              style={{
+                background:
+                  "linear-gradient(150deg, rgba(255,255,255,.3), rgba(255,255,255,.05) 45%, rgba(129,140,248,.5))",
+              }}
+            >
+              <Image
+                src={siteConfig.headshotPath}
+                alt={`Portrait of ${siteConfig.name}`}
+                width={1200}
+                height={1200}
+                priority
+                sizes="(min-width: 1024px) 34rem, (min-width: 640px) 24rem, 90vw"
+                className="aspect-square w-full rounded-2xl object-cover"
+              />
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Credibility strip */}
-      <div className="border-y border-border bg-surface/60 backdrop-blur">
+      {/* Credibility strip — the first light element of the body. */}
+      <div className="border-b border-border bg-surface">
         <div className="container-page flex flex-wrap items-center gap-x-6 gap-y-2 py-4">
           <span className="font-mono text-[0.7rem] uppercase tracking-[0.16em] text-subtle">
             Focus areas
@@ -77,6 +95,6 @@ export function Hero() {
           ))}
         </div>
       </div>
-    </section>
+    </>
   );
 }

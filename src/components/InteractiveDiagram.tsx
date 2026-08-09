@@ -43,8 +43,9 @@ export function InteractiveDiagram({ diagram }: { diagram: ArchitectureDiagram }
   return (
     <div>
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-        {/* Diagram canvas */}
-        <div>
+        {/* Diagram canvas — min-w-0 lets the scroll wrapper below shrink to the
+            viewport so the 640px canvas scrolls inside it instead of the page. */}
+        <div className="min-w-0">
           <div className="overflow-x-auto rounded-2xl border border-border bg-surface-2 p-4">
             <div className="relative mx-auto min-w-[640px] aspect-[640/440]">
               {/* Connector lines */}

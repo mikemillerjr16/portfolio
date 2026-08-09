@@ -45,6 +45,10 @@ export function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
+  // On the homepage the hero is dark (Evidence theme); at the top the nav sits
+  // over it, so it goes transparent with light text (handled in globals.css).
+  const overHero = pathname === "/" && !scrolled && !open;
+
   // Close the mobile drawer on route change.
   useEffect(() => setOpen(false), [pathname]);
 
@@ -69,12 +73,16 @@ export function Nav() {
   }, [open]);
 
   return (
-    <header
+    <>
+      <header
+        data-over-hero={overHero ? "true" : undefined}
       className={cn(
         "sticky top-0 z-40 border-b transition-colors duration-300",
-        scrolled
-          ? "border-border bg-bg/80 backdrop-blur-md supports-[backdrop-filter]:bg-bg/70"
-          : "border-transparent bg-bg",
+        overHero
+          ? "border-transparent bg-transparent"
+          : scrolled
+            ? "border-border bg-bg/80 backdrop-blur-md supports-[backdrop-filter]:bg-bg/70"
+            : "border-transparent bg-bg",
       )}
     >
       <nav className="container-page flex h-16 items-center justify-between gap-4">
@@ -122,8 +130,11 @@ export function Nav() {
           </button>
         </div>
       </nav>
+      </header>
 
-      {/* Mobile drawer */}
+      {/* Mobile drawer — rendered OUTSIDE the header. A scrolled header has
+          backdrop-filter, which would otherwise become the containing block for
+          this `fixed` overlay and trap it inside the 64px header box. */}
       {open ? (
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" id="mobile-menu">
           <div
@@ -171,6 +182,6 @@ export function Nav() {
           </div>
         </div>
       ) : null}
-    </header>
+    </>
   );
 }

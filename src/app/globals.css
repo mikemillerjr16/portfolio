@@ -49,6 +49,15 @@
   --accent-soft: 32 34 60;
 }
 
+/* Nav over the dark Evidence hero: locally light-tint the color tokens so all
+   nav text/icons read on the dark hero, without touching each element. */
+header[data-over-hero="true"] {
+  --fg: 245 247 252;
+  --muted: 209 217 230;
+  --subtle: 165 176 194;
+  --border: 255 255 255;
+}
+
 * {
   border-color: rgb(var(--border));
 }
@@ -153,6 +162,58 @@ body {
     mask-image: radial-gradient(ellipse at center, black 30%, transparent 72%);
     -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 72%);
   }
+
+  /* ---- Evidence theme: dark atmospheric hero / contact ---- */
+  .evidence-dark {
+    position: relative;
+    overflow: hidden;
+    background: #0a0c12;
+    color: #eaecf3;
+  }
+  .evidence-dark::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(900px 520px at 16% 6%, rgba(56, 120, 255, 0.22), transparent 58%),
+      radial-gradient(760px 520px at 90% 26%, rgba(129, 140, 248, 0.18), transparent 60%),
+      radial-gradient(620px 620px at 60% 128%, rgba(45, 212, 191, 0.09), transparent 60%);
+  }
+  .evidence-dark::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.5;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    background-size: 52px 52px;
+    -webkit-mask-image: radial-gradient(85% 75% at 50% 16%, #000, transparent 76%);
+    mask-image: radial-gradient(85% 75% at 50% 16%, #000, transparent 76%);
+  }
+  .evidence-dark > * {
+    position: relative;
+    z-index: 1;
+  }
+  .evidence-grad {
+    background: linear-gradient(92deg, #8ab4ff, #a78bfa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .btn-evidence {
+    background-image: linear-gradient(180deg, #6d6ff2, #5457e6);
+    color: #fff;
+    box-shadow: 0 12px 30px -10px rgba(99, 102, 241, 0.7);
+  }
+  .btn-on-dark {
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  .btn-on-dark:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -223,11 +284,49 @@ body {
    Print — keep resume/article views clean
    -------------------------------------------------------------------------- */
 @media print {
-  .no-print {
+  /* Hide site chrome and interactive controls — a clean, resume-like printout. */
+  header,
+  footer,
+  .no-print,
+  .btn {
     display: none !important;
   }
+
   body {
     background: #fff;
     color: #000;
+  }
+  a {
+    color: #000 !important;
+    text-decoration: none !important;
+  }
+
+  /* Compact the generous on-screen spacing so it prints on fewer pages. */
+  section {
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+
+  /* Flatten decoration and keep role cards / rows intact across page breaks. */
+  [class*="shadow"] {
+    box-shadow: none !important;
+  }
+  .card,
+  li,
+  article {
+    break-inside: avoid;
+  }
+  [class*="bg-surface"] {
+    background: #fff !important;
+  }
+
+  /* The Evidence dark hero / bands print as plain white. */
+  .evidence-dark {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .evidence-dark::before,
+  .evidence-dark::after {
+    display: none !important;
   }
 }

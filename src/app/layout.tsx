@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Onest } from "next/font/google";
+import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import { siteConfig } from "@/data/siteConfig";
 import { buildMetadata, personJsonLd } from "@/lib/seo";
@@ -8,16 +9,12 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { SkipLink, JsonLd } from "@/components/primitives";
 
-// Self-hosted at build time -> no external font requests at runtime.
-const inter = Inter({
+// Onest (sans, self-hosted via next/font) + Geist Mono for labels/data.
+// Sets --font-onest and --font-geist-mono, mapped in tailwind.config.ts.
+const onest = Onest({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-sans",
-});
-const mono = JetBrains_Mono({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-mono",
+  variable: "--font-onest",
 });
 
 export const metadata: Metadata = {
@@ -43,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${mono.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${onest.variable} ${GeistMono.variable}`}>
       <body className="min-h-screen bg-bg font-sans antialiased">
         <ThemeProvider>
           <SkipLink />
