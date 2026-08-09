@@ -87,7 +87,7 @@ export default function ExperiencePage() {
           <div className="mt-8 flex flex-wrap gap-3">
             <ResumeButton label="Download Resume" />
             <ResumeButton variant="secondary" label="View PDF" />
-            <PrintButton label="Print-friendly view" />
+            <PrintButton label="Print résumé" />
           </div>
           <p className="mt-3 text-sm text-subtle">
             This page is a curated overview — the PDF resume has the full detail.

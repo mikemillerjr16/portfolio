@@ -32,18 +32,42 @@ export function ResumeButton({
   );
 }
 
-/** Triggers the browser print dialog for a print-friendly view. */
+/**
+ * Prints the actual résumé PDF (not the web page). Loads the same-origin PDF in
+ * a hidden iframe and opens the print dialog for it; falls back to opening the
+ * PDF in a new tab if a browser blocks iframe printing (e.g. some Safari builds).
+ */
 export function PrintButton({
-  label = "Print",
+  label = "Print résumé",
   className,
 }: {
   label?: string;
   className?: string;
 }) {
+  const printResume = () => {
+    document.getElementById("resume-print-frame")?.remove();
+    const iframe = document.createElement("iframe");
+    iframe.id = "resume-print-frame";
+    iframe.setAttribute("aria-hidden", "true");
+    iframe.style.cssText =
+      "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;";
+    iframe.src = siteConfig.resumePath;
+    iframe.onload = () => {
+      try {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+      } catch {
+        window.open(siteConfig.resumePath, "_blank", "noopener,noreferrer");
+      }
+    };
+    document.body.appendChild(iframe);
+    trackEvent("resume_printed");
+  };
+
   return (
     <button
       type="button"
-      onClick={() => window.print()}
+      onClick={printResume}
       className={cn("btn btn-ghost btn-md no-print", className)}
     >
       <Printer className="h-4 w-4" aria-hidden />
