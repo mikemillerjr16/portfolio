@@ -8,6 +8,7 @@
 
 export type AnalyticsEvent =
   | "resume_downloaded"
+  | "resume_printed"
   | "project_viewed"
   | "architecture_viewed"
   | "github_clicked"
