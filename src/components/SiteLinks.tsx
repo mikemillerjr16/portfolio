@@ -49,16 +49,21 @@ export function PrintButton({
     const iframe = document.createElement("iframe");
     iframe.id = "resume-print-frame";
     iframe.setAttribute("aria-hidden", "true");
+    // Real page dimensions (kept off-screen, not 0-size/hidden) so the PDF fully
+    // paginates and ALL pages print — a 0-height iframe clips to page 1 in Chrome.
     iframe.style.cssText =
-      "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;";
+      "position:fixed;top:0;left:-10000px;width:816px;height:1056px;border:0;";
     iframe.src = siteConfig.resumePath;
     iframe.onload = () => {
-      try {
-        iframe.contentWindow?.focus();
-        iframe.contentWindow?.print();
-      } catch {
-        window.open(siteConfig.resumePath, "_blank", "noopener,noreferrer");
-      }
+      // Small delay so the PDF viewer finishes laying out all pages first.
+      window.setTimeout(() => {
+        try {
+          iframe.contentWindow?.focus();
+          iframe.contentWindow?.print();
+        } catch {
+          window.open(siteConfig.resumePath, "_blank", "noopener,noreferrer");
+        }
+      }, 300);
     };
     document.body.appendChild(iframe);
     trackEvent("resume_printed");
